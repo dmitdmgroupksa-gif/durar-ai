@@ -13,6 +13,7 @@
 import { createInterface } from "node:readline";
 import { execSync, spawn } from "node:child_process";
 import { platform } from "node:os";
+import { rmSync } from "node:fs";
 import { isOllamaRunning, listInstalledModels, listRunningModels, pullModelStream, POPULAR_MODELS } from "./ollama.js";
 import { loadConfig, saveConfig, generateToken, DURAR_DIR, CONFIG_FILE } from "./config.js";
 
@@ -106,7 +107,7 @@ async function installOllama() {
     }
     console.log(`  Launching Ollama installer...`);
     execSync(`"${installer}"`, { stdio: "inherit" });
-    require("node:fs").unlinkSync(installer);
+    rmSync(installer, { force: true });
     console.log(`  ✓ Ollama installed`);
   } else {
     console.log(`  Installing Ollama...`);

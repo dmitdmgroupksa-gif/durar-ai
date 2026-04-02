@@ -2,7 +2,7 @@
  * Durar AI — Multi-Provider AI Router
  * Supports: Ollama (local), OpenAI, Anthropic, OpenRouter
  */
-import { chatComplete, chatStream } from "./ollama.js";
+import { chatStream } from "./ollama.js";
 
 export const PROVIDERS = {
   ollama: {
