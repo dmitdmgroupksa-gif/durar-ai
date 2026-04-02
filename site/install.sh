@@ -4,7 +4,7 @@ set -euo pipefail
 DURAR_VERSION="1.0.0"
 DURAR_DIR="$HOME/.durar-ai"
 INSTALL_DIR="$HOME/.durar-ai/app"
-DOWNLOAD_BASE="https://yourdomain.com"
+DOWNLOAD_BASE="https://durar.ai"
 BIN_LINK="/usr/local/bin/durar-ai"
 MIN_NODE_MAJOR=20
 

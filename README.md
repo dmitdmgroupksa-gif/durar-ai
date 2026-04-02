@@ -30,10 +30,10 @@ zip -r durar-ai-node-1.0.0.zip gateway/ -x "gateway/node_modules/*"
 
 ### Installers
 
-- **Linux/macOS**: `curl -fsSL https://yourdomain.com/install.sh | bash`
-- **Windows**: `irm https://yourdomain.com/install.ps1 | iex`
+- **Linux/macOS**: `curl -fsSL https://durar.ai/install.sh | bash`
+- **Windows**: `irm https://durar.ai/install.ps1 | iex`
 
-> Replace `https://yourdomain.com` with your actual domain in `site/install.sh`, `site/install.ps1`, and `site/public/index.html`.
+> Replace `https://durar.ai` if your domain changes.
 
 ## Gateway Features
 

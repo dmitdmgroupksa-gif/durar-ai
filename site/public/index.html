@@ -87,7 +87,7 @@
   <p>Run powerful AI models locally with Ollama — or connect to Claude, GPT, and more. One command to install.</p>
 
   <div class="install-box" id="install">
-    <code id="install-cmd">curl -fsSL https://yourdomain.com/install.sh | bash</code>
+    <code id="install-cmd">curl -fsSL https://durar.ai/install.sh | bash</code>
     <button class="copy-btn" onclick="copyInstall()">Copy</button>
   </div>
   <p class="install-note" id="install-note">Works on macOS &amp; Linux. <a href="/releases/durar-ai-node-1.0.0.zip">Direct download</a> also available.</p>
@@ -160,7 +160,7 @@ function copyInstall() {
   const isMac = /Mac/.test(navigator.platform);
 
   if (isWin) {
-    cmd.textContent = "irm https://yourdomain.com/install.ps1 | iex";
+    cmd.textContent = "irm https://durar.ai/install.ps1 | iex";
     note.innerHTML = "For Windows 10/11 (PowerShell). <a href=\"/releases/durar-ai-node-1.0.0.zip\">Direct download</a> also available.";
   } else if (isMac) {
     note.innerHTML = "Works on macOS &amp; Linux. <a href=\"/releases/durar-ai-node-1.0.0.zip\">Direct download</a> also available.";
