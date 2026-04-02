@@ -1,169 +1,479 @@
 <!DOCTYPE html>
-<html lang="en">
+<html class="dark" lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>Durar AI — Your Personal AI Assistant</title>
-<style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  :root {
-    --bg: #0a0a0f;
-    --surface: #12121a;
-    --border: #1e1e2e;
-    --accent: #7c6af7;
-    --accent2: #5eead4;
-    --text: #e2e2f0;
-    --muted: #888899;
-    --code-bg: #0d0d17;
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;800&family=Space+Grotesk:wght@300;400;500;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        colors: {
+          "surface-dim":               "#131313",
+          "surface-container":         "#201f1f",
+          "surface-container-highest": "#353534",
+          "surface-container-high":    "#2a2a2a",
+          "surface-container-low":     "#1c1b1b",
+          "surface-container-lowest":  "#0e0e0e",
+          "surface":                   "#131313",
+          "background":                "#131313",
+          "on-background":             "#e5e2e1",
+          "on-surface":                "#e5e2e1",
+          "on-surface-variant":        "#cfc2d7",
+          "outline":                   "#988ca0",
+          "outline-variant":           "#4c4354",
+          "primary":                   "#dcb8ff",
+          "primary-container":         "#8a2be2",
+          "on-primary":                "#480081",
+          "on-primary-container":      "#eed9ff",
+          "secondary":                 "#dcb8ff",
+          "secondary-container":       "#5d3587",
+          "on-secondary":              "#43196d",
+          "error":                     "#ffb4ab",
+          "tertiary":                  "#ffb873",
+        },
+        fontFamily: {
+          "headline": ["Inter"],
+          "body":     ["Space Grotesk"],
+          "label":    ["Space Grotesk"],
+          "mono":     ["JetBrains Mono", "monospace"],
+        },
+        borderRadius: { "DEFAULT": "0px", "lg": "2px", "xl": "4px", "full": "9999px" },
+      },
+    },
   }
-  body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; line-height: 1.6; }
-
-  /* NAV */
-  nav { display: flex; align-items: center; justify-content: space-between; padding: 1.2rem 2rem; border-bottom: 1px solid var(--border); position: sticky; top: 0; background: rgba(10,10,15,0.92); backdrop-filter: blur(12px); z-index: 10; }
-  .logo { font-size: 1.25rem; font-weight: 700; color: var(--text); text-decoration: none; display: flex; align-items: center; gap: .5rem; }
-  .logo span { color: var(--accent); }
-  nav a { color: var(--muted); text-decoration: none; font-size: .9rem; }
-  nav a:hover { color: var(--text); }
-  nav .nav-links { display: flex; gap: 2rem; align-items: center; }
-
-  /* HERO */
-  .hero { text-align: center; padding: 5rem 2rem 4rem; max-width: 780px; margin: 0 auto; }
-  .badge { display: inline-block; background: rgba(124,106,247,.15); color: var(--accent); border: 1px solid rgba(124,106,247,.3); border-radius: 20px; padding: .3rem 1rem; font-size: .8rem; margin-bottom: 1.5rem; letter-spacing: .05em; text-transform: uppercase; }
-  h1 { font-size: clamp(2.2rem, 5vw, 3.5rem); font-weight: 800; line-height: 1.15; margin-bottom: 1.2rem; }
-  h1 em { font-style: normal; background: linear-gradient(135deg, var(--accent), var(--accent2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
-  .hero p { font-size: 1.15rem; color: var(--muted); max-width: 580px; margin: 0 auto 2.5rem; }
-
-  /* ONE-LINER */
-  .install-box { background: var(--code-bg); border: 1px solid var(--border); border-radius: 12px; padding: 1.2rem 1.6rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem; max-width: 640px; margin: 0 auto 1rem; font-family: 'SF Mono', 'Fira Code', monospace; }
-  .install-box code { color: var(--accent2); font-size: .9rem; word-break: break-all; }
-  .copy-btn { background: var(--accent); color: #fff; border: none; border-radius: 7px; padding: .45rem .9rem; cursor: pointer; font-size: .8rem; font-weight: 600; white-space: nowrap; transition: opacity .2s; }
-  .copy-btn:hover { opacity: .85; }
-  .install-note { color: var(--muted); font-size: .82rem; }
-  .install-note a { color: var(--accent); }
-
-  /* FEATURES */
-  .section { padding: 4rem 2rem; max-width: 1000px; margin: 0 auto; }
-  .section-title { font-size: 1.7rem; font-weight: 700; margin-bottom: .6rem; }
-  .section-sub { color: var(--muted); margin-bottom: 2.5rem; }
-  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.2rem; }
-  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.4rem; transition: border-color .2s; }
-  .card:hover { border-color: var(--accent); }
-  .card-icon { font-size: 1.6rem; margin-bottom: .8rem; }
-  .card h3 { font-size: 1rem; font-weight: 600; margin-bottom: .4rem; }
-  .card p { color: var(--muted); font-size: .88rem; }
-
-  /* MODELS */
-  .models-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: .8rem; }
-  .model-chip { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: .8rem 1rem; }
-  .model-chip .name { font-family: monospace; font-size: .85rem; color: var(--accent2); margin-bottom: .25rem; }
-  .model-chip .meta { font-size: .78rem; color: var(--muted); }
-  .model-chip.rec { border-color: rgba(124,106,247,.4); }
-
-  /* COMMANDS */
-  .cmd-block { background: var(--code-bg); border: 1px solid var(--border); border-radius: 10px; padding: 1.4rem 1.8rem; font-family: monospace; font-size: .88rem; line-height: 2; }
-  .cmd-block .comment { color: #4a4a6a; }
-  .cmd-block .cmd { color: var(--accent2); }
-  .cmd-block .arg { color: var(--accent); }
-
-  /* FOOTER */
-  footer { border-top: 1px solid var(--border); padding: 2rem; text-align: center; color: var(--muted); font-size: .85rem; }
-  footer a { color: var(--accent); text-decoration: none; }
+</script>
+<style>
+  .material-symbols-outlined {
+    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    vertical-align: middle;
+  }
+  .glow-border  { box-shadow: 0 0 6px #8a2be2; }
+  .glow-text    { text-shadow: 0 0 8px rgba(138,43,226,0.6); }
+  .dot-grid     { background-image: radial-gradient(#4c4354 1px, transparent 1px); background-size: 24px 24px; }
+  .status-dot   { display: inline-block; width: 6px; height: 6px; background: #8a2be2; }
 </style>
 </head>
-<body>
+<body class="bg-background text-on-background font-body selection:bg-primary-container selection:text-white">
 
-<nav>
-  <a class="logo" href="/"><span>✨</span> Durar AI</a>
-  <div class="nav-links">
-    <a href="#models">Models</a>
-    <a href="#install">Install</a>
-    <a href="/version">API</a>
+<!-- ═══════════════════ TOP NAV ═══════════════════ -->
+<header class="bg-[#131313] border-b border-[#4c4354] flex justify-between items-center w-full px-6 h-14 fixed top-0 z-50">
+  <div class="flex items-center gap-8">
+    <a href="/" class="flex items-center">
+      <img style="mix-blend-mode:lighten;" src="data:image/jpeg;base64,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" alt="Durar AI" class="h-8 w-auto" style="">
+    </a>
+    <nav class="hidden md:flex gap-6 items-center">
+      <a class="text-[#8a2be2] border-b-2 border-[#8a2be2] pb-0.5 font-mono text-[0.875rem]" href="#">Console</a>
+      <a class="text-gray-400 font-mono text-[0.875rem] hover:text-white transition-colors" href="#models">Models</a>
+      <a class="text-gray-400 font-mono text-[0.875rem] hover:text-white transition-colors" href="#install">Install</a>
+      <a class="text-gray-400 font-mono text-[0.875rem] hover:text-white transition-colors" href="/version">API</a>
+    </nav>
   </div>
-</nav>
-
-<section class="hero">
-  <div class="badge">Open Source · Free · Self-Hosted</div>
-  <h1>Your personal<br><em>AI assistant</em></h1>
-  <p>Run powerful AI models locally with Ollama — or connect to Claude, GPT, and more. One command to install.</p>
-
-  <div class="install-box" id="install">
-    <code id="install-cmd">curl -fsSL https://durar.ai/install.sh | bash</code>
-    <button class="copy-btn" onclick="copyInstall()">Copy</button>
+  <div class="flex items-center gap-4">
+    <div class="hidden lg:flex bg-surface-container-lowest border border-outline-variant px-3 py-1 items-center gap-2">
+      <span class="material-symbols-outlined text-outline" style="font-size:14px">search</span>
+      <span class="text-[0.6875rem] font-mono text-outline">SEARCH_SYSTEM…</span>
+    </div>
+    <div class="flex items-center gap-3">
+      <span class="material-symbols-outlined text-outline hover:text-primary transition-colors cursor-pointer">memory</span>
+      <span class="material-symbols-outlined text-outline hover:text-primary transition-colors cursor-pointer">sensors</span>
+      <span class="material-symbols-outlined text-outline hover:text-primary transition-colors cursor-pointer">data_usage</span>
+      <div class="flex items-center gap-2 border border-outline-variant px-2 py-1 bg-surface-container-lowest">
+        <span class="status-dot"></span>
+        <span class="text-[0.6875rem] font-mono text-[#8a2be2]">SYS_OK</span>
+      </div>
+    </div>
   </div>
-  <p class="install-note" id="install-note">Works on macOS &amp; Linux. <a href="/releases/durar-ai-node-1.0.0.zip">Direct download</a> also available.</p>
-</section>
+</header>
 
-<section class="section">
-  <h2 class="section-title">Everything you need</h2>
-  <p class="section-sub">Install once, run anywhere.</p>
-  <div class="grid">
-    <div class="card"><div class="card-icon">🖥️</div><h3>Local Models via Ollama</h3><p>Run Llama, Mistral, Gemma, DeepSeek and more entirely on your own machine. Free, private, no API key.</p></div>
-    <div class="card"><div class="card-icon">⚡</div><h3>Streaming Responses</h3><p>Real-time token streaming over HTTP (SSE) and WebSocket. Feels instant.</p></div>
-    <div class="card"><div class="card-icon">🧠</div><h3>Persistent Sessions</h3><p>Memory across conversations. Durar remembers context so you don't repeat yourself.</p></div>
-    <div class="card"><div class="card-icon">🔌</div><h3>OpenAI-Compatible API</h3><p>Drop-in replacement for any OpenAI client. Point your tools at your own gateway.</p></div>
-    <div class="card"><div class="card-icon">☁️</div><h3>Cloud Providers Too</h3><p>Switch between Ollama, Claude (Anthropic), GPT (OpenAI), or OpenRouter with one command.</p></div>
-    <div class="card"><div class="card-icon">🛠️</div><h3>Simple CLI</h3><p>Pull models, switch providers, check health — all from the terminal.</p></div>
+<main class="pt-14 pb-16">
+
+  <!-- ═══════════════════ HERO ═══════════════════ -->
+  <section class="relative min-h-[860px] flex flex-col items-center justify-center border-b border-outline-variant overflow-hidden" id="install">
+    <!-- dot grid texture -->
+    <div class="absolute inset-0 z-0 opacity-20 pointer-events-none dot-grid"></div>
+
+    <div class="container mx-auto px-6 z-10 flex flex-col md:flex-row items-center gap-12">
+
+      <!-- Left telemetry panel -->
+      <div class="hidden xl:flex flex-col gap-5 w-60 border-l border-outline-variant pl-4">
+        <div class="space-y-1">
+          <p class="text-[0.6875rem] font-mono text-[#8a2be2] uppercase tracking-widest">Engine_Status</p>
+          <div class="h-1 w-full bg-surface-container-highest">
+            <div class="h-full bg-[#8a2be2] w-[92%]"></div>
+          </div>
+          <p class="text-[0.6875rem] font-mono text-outline">OLLAMA: 92% NOMINAL</p>
+        </div>
+        <div class="space-y-1 opacity-60">
+          <p class="text-[0.6875rem] font-mono text-outline uppercase tracking-widest">Local_Inference</p>
+          <p class="text-xl font-mono text-white">ACTIVE</p>
+        </div>
+        <div class="space-y-1 opacity-60">
+          <p class="text-[0.6875rem] font-mono text-outline uppercase tracking-widest">Privacy_Level</p>
+          <p class="text-xl font-mono text-white">MAX</p>
+        </div>
+      </div>
+
+      <!-- Center identity -->
+      <div class="flex-1 text-center flex flex-col items-center">
+        <div class="mb-4 inline-flex items-center gap-2 border border-outline-variant px-3 py-1 bg-surface-container-lowest">
+          <span class="status-dot"></span>
+          <span class="text-[0.6875rem] font-mono text-[#8a2be2] uppercase tracking-widest">Open Source · Free · Self-Hosted</span>
+        </div>
+
+        <div class="mb-6 p-4 border border-[#8a2be2] glow-border inline-block bg-surface-container-lowest">
+          <span class="material-symbols-outlined text-6xl text-[#8a2be2]" style="font-variation-settings:'FILL' 1;">terminal</span>
+        </div>
+
+        <h1 class="text-6xl md:text-8xl font-black font-headline tracking-tighter text-white mb-4 uppercase leading-none">
+          YOUR<br><span class="text-[#8a2be2] glow-text">PERSONAL</span><br>AI_ASSISTANT
+        </h1>
+
+        <p class="max-w-2xl text-base text-outline font-body mb-8 leading-relaxed">
+          Durar AI takes <a href="https://github.com/openclaw/openclaw" class="text-[#8a2be2] hover:brightness-125">OpenClaw</a> further — enabling local, free AI models via Ollama on your own hardware, with complete privacy and the flexibility to access Claude, GPT, and more when needed.<br>
+          Your models, your machine, your rules.
+        </p>
+
+        <!-- Install command -->
+        <div class="w-full max-w-xl bg-surface-container-lowest border border-outline-variant p-0 flex items-stretch focus-within:border-[#8a2be2] transition-colors group">
+          <div class="flex items-center pl-4 pr-3 border-r border-outline-variant">
+            <span class="text-[#8a2be2] font-mono text-sm">$</span>
+          </div>
+          <code id="install-cmd" class="flex-1 font-mono text-[0.85rem] text-primary px-4 py-3 select-all truncate">curl -fsSL https://durar.ai/install.sh | bash</code>
+          <button onclick="copyInstall()" class="bg-primary-container text-white px-5 py-3 font-mono text-xs uppercase font-bold hover:brightness-110 transition-all border-l border-outline-variant whitespace-nowrap" id="copy-btn">
+            COPY
+          </button>
+        </div>
+        <p class="text-[0.78rem] font-mono text-outline mt-2" id="install-note">
+          Works on macOS &amp; Linux.
+        </p>
+      </div>
+
+      <!-- Right telemetry panel -->
+      <div class="hidden xl:flex flex-col gap-5 w-60 border-r border-outline-variant pr-4 text-right items-end">
+        <div class="space-y-1">
+          <p class="text-[0.6875rem] font-mono text-[#8a2be2] uppercase tracking-widest">Provider_Link</p>
+          <div class="flex gap-1 justify-end">
+            <div class="w-2 h-2 bg-[#8a2be2]"></div>
+            <div class="w-2 h-2 bg-[#8a2be2]"></div>
+            <div class="w-2 h-2 bg-[#8a2be2]"></div>
+            <div class="w-2 h-2 bg-outline-variant"></div>
+          </div>
+          <p class="text-[0.6875rem] font-mono text-outline">UPTIME: 99.999%</p>
+        </div>
+        <div class="space-y-1 opacity-60">
+          <p class="text-[0.6875rem] font-mono text-outline uppercase tracking-widest">Stream_Mode</p>
+          <p class="text-xl font-mono text-white">SSE+WS</p>
+        </div>
+        <div class="space-y-1 opacity-60">
+          <p class="text-[0.6875rem] font-mono text-outline uppercase tracking-widest">API_Compat</p>
+          <p class="text-xl font-mono text-white">OpenAI</p>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ═══════════════════ FEATURES ═══════════════════ -->
+  <section class="py-24 container mx-auto px-6">
+    <div class="mb-12 flex items-baseline gap-4">
+      <h2 class="text-3xl font-black font-headline tracking-tighter text-white uppercase">Skeletal_Capabilities</h2>
+      <div class="h-px flex-1 bg-outline-variant"></div>
+      <span class="text-[0.6875rem] font-mono text-outline">REF_ID: 0x1A2F</span>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-px bg-outline-variant border border-outline-variant">
+
+      <!-- F1 -->
+      <div class="bg-background p-8 group hover:bg-surface-container-lowest transition-all">
+        <div class="flex justify-between items-start mb-10">
+          <span class="material-symbols-outlined text-[#8a2be2] text-3xl">computer</span>
+          <div class="flex items-center gap-2 px-2 py-1 bg-[#8a2be2]/10 border border-[#8a2be2]/30">
+            <div class="w-1.5 h-1.5 bg-[#8a2be2]"></div>
+            <span class="text-[0.6rem] font-mono text-[#8a2be2] uppercase">Active</span>
+          </div>
+        </div>
+        <h3 class="text-base font-bold text-white mb-2 font-headline uppercase tracking-tight">Local Models via Ollama</h3>
+        <p class="text-sm text-outline font-body leading-relaxed">Run Llama, Mistral, Gemma, DeepSeek and more entirely on your own machine. Free, private, no API key required.</p>
+        <div class="mt-8 pt-4 border-t border-outline-variant/30 flex items-center justify-between">
+          <span class="text-[0.6875rem] font-mono text-outline">PRIVACY: LOCAL</span>
+          <span class="material-symbols-outlined text-outline text-sm group-hover:text-[#8a2be2] transition-colors">arrow_forward</span>
+        </div>
+      </div>
+
+      <!-- F2 -->
+      <div class="bg-background p-8 group hover:bg-surface-container-lowest transition-all">
+        <div class="flex justify-between items-start mb-10">
+          <span class="material-symbols-outlined text-[#8a2be2] text-3xl">bolt</span>
+          <div class="flex items-center gap-2 px-2 py-1 bg-[#8a2be2]/10 border border-[#8a2be2]/30">
+            <div class="w-1.5 h-1.5 bg-[#8a2be2]"></div>
+            <span class="text-[0.6rem] font-mono text-[#8a2be2] uppercase">Active</span>
+          </div>
+        </div>
+        <h3 class="text-base font-bold text-white mb-2 font-headline uppercase tracking-tight">Streaming Responses</h3>
+        <p class="text-sm text-outline font-body leading-relaxed">Real-time token streaming over HTTP (SSE) and WebSocket. Instantaneous feedback from every model in the stack.</p>
+        <div class="mt-8 pt-4 border-t border-outline-variant/30 flex items-center justify-between">
+          <span class="text-[0.6875rem] font-mono text-outline">LATENCY: &lt; 2MS</span>
+          <span class="material-symbols-outlined text-outline text-sm group-hover:text-[#8a2be2] transition-colors">arrow_forward</span>
+        </div>
+      </div>
+
+      <!-- F3 -->
+      <div class="bg-background p-8 group hover:bg-surface-container-lowest transition-all">
+        <div class="flex justify-between items-start mb-10">
+          <span class="material-symbols-outlined text-[#8a2be2] text-3xl">psychology</span>
+          <div class="flex items-center gap-2 px-2 py-1 bg-[#8a2be2]/10 border border-[#8a2be2]/30">
+            <div class="w-1.5 h-1.5 bg-[#8a2be2]"></div>
+            <span class="text-[0.6rem] font-mono text-[#8a2be2] uppercase">Active</span>
+          </div>
+        </div>
+        <h3 class="text-base font-bold text-white mb-2 font-headline uppercase tracking-tight">Persistent Sessions</h3>
+        <p class="text-sm text-outline font-body leading-relaxed">Memory across conversations. Durar retains context so you never repeat context to the model again.</p>
+        <div class="mt-8 pt-4 border-t border-outline-variant/30 flex items-center justify-between">
+          <span class="text-[0.6875rem] font-mono text-outline">CONTEXT: PERSISTENT</span>
+          <span class="material-symbols-outlined text-outline text-sm group-hover:text-[#8a2be2] transition-colors">arrow_forward</span>
+        </div>
+      </div>
+
+      <!-- F4 -->
+      <div class="bg-background p-8 group hover:bg-surface-container-lowest transition-all">
+        <div class="flex justify-between items-start mb-10">
+          <span class="material-symbols-outlined text-[#8a2be2] text-3xl">hub</span>
+          <div class="flex items-center gap-2 px-2 py-1 bg-[#8a2be2]/10 border border-[#8a2be2]/30">
+            <div class="w-1.5 h-1.5 bg-[#8a2be2]"></div>
+            <span class="text-[0.6rem] font-mono text-[#8a2be2] uppercase">Active</span>
+          </div>
+        </div>
+        <h3 class="text-base font-bold text-white mb-2 font-headline uppercase tracking-tight">OpenAI-Compatible API</h3>
+        <p class="text-sm text-outline font-body leading-relaxed">Drop-in replacement for any OpenAI client. Point your existing tools at your own gateway with no code changes.</p>
+        <div class="mt-8 pt-4 border-t border-outline-variant/30 flex items-center justify-between">
+          <span class="text-[0.6875rem] font-mono text-outline">COMPAT: UNIVERSAL</span>
+          <span class="material-symbols-outlined text-outline text-sm group-hover:text-[#8a2be2] transition-colors">arrow_forward</span>
+        </div>
+      </div>
+
+      <!-- F5 -->
+      <div class="bg-background p-8 group hover:bg-surface-container-lowest transition-all">
+        <div class="flex justify-between items-start mb-10">
+          <span class="material-symbols-outlined text-[#8a2be2] text-3xl">cloud_sync</span>
+          <div class="flex items-center gap-2 px-2 py-1 bg-[#8a2be2]/10 border border-[#8a2be2]/30">
+            <div class="w-1.5 h-1.5 bg-[#8a2be2]"></div>
+            <span class="text-[0.6rem] font-mono text-[#8a2be2] uppercase">Active</span>
+          </div>
+        </div>
+        <h3 class="text-base font-bold text-white mb-2 font-headline uppercase tracking-tight">Cloud Providers Too</h3>
+        <p class="text-sm text-outline font-body leading-relaxed">Switch between Ollama, Claude (Anthropic), GPT (OpenAI), or OpenRouter with a single command.</p>
+        <div class="mt-8 pt-4 border-t border-outline-variant/30 flex items-center justify-between">
+          <span class="text-[0.6875rem] font-mono text-outline">PROVIDERS: 4+</span>
+          <span class="material-symbols-outlined text-outline text-sm group-hover:text-[#8a2be2] transition-colors">arrow_forward</span>
+        </div>
+      </div>
+
+      <!-- F6 -->
+      <div class="bg-background p-8 group hover:bg-surface-container-lowest transition-all">
+        <div class="flex justify-between items-start mb-10">
+          <span class="material-symbols-outlined text-[#8a2be2] text-3xl">developer_mode</span>
+          <div class="flex items-center gap-2 px-2 py-1 bg-[#8a2be2]/10 border border-[#8a2be2]/30">
+            <div class="w-1.5 h-1.5 bg-[#8a2be2]"></div>
+            <span class="text-[0.6rem] font-mono text-[#8a2be2] uppercase">Active</span>
+          </div>
+        </div>
+        <h3 class="text-base font-bold text-white mb-2 font-headline uppercase tracking-tight">Simple CLI</h3>
+        <p class="text-sm text-outline font-body leading-relaxed">Pull models, switch providers, check health — all from the terminal. No config files, no dashboards required.</p>
+        <div class="mt-8 pt-4 border-t border-outline-variant/30 flex items-center justify-between">
+          <span class="text-[0.6875rem] font-mono text-outline">BUILD: V1.0.0</span>
+          <span class="material-symbols-outlined text-outline text-sm group-hover:text-[#8a2be2] transition-colors">arrow_forward</span>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ═══════════════════ MODELS ═══════════════════ -->
+  <section class="py-24 border-y border-outline-variant bg-surface-container-lowest overflow-hidden" id="models">
+    <div class="container mx-auto px-6">
+      <div class="mb-12 flex items-baseline gap-4">
+        <h2 class="text-3xl font-black font-headline tracking-tighter text-white uppercase">Recommended_Models</h2>
+        <div class="h-px flex-1 bg-outline-variant"></div>
+        <span class="text-[0.6875rem] font-mono text-outline">OLLAMA_REGISTRY</span>
+      </div>
+      <p class="text-sm text-outline font-mono mb-8">Pull any model after install. Starred entries are the best starting points.</p>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-px bg-outline-variant border border-outline-variant">
+
+        <!-- starred -->
+        <div class="bg-background p-5 border-t-2 border-[#8a2be2]">
+          <div class="flex justify-between items-start mb-3">
+            <span class="text-[0.6875rem] font-mono text-[#8a2be2] uppercase tracking-widest">⭐ Recommended</span>
+            <div class="w-1.5 h-1.5 bg-[#8a2be2]"></div>
+          </div>
+          <p class="font-mono text-white text-base font-bold mb-1">llama3.2</p>
+          <p class="text-[0.78rem] font-mono text-outline">~2 GB · Fast, general purpose</p>
+        </div>
+        <div class="bg-background p-5 border-t-2 border-[#8a2be2]">
+          <div class="flex justify-between items-start mb-3">
+            <span class="text-[0.6875rem] font-mono text-[#8a2be2] uppercase tracking-widest">⭐ Recommended</span>
+            <div class="w-1.5 h-1.5 bg-[#8a2be2]"></div>
+          </div>
+          <p class="font-mono text-white text-base font-bold mb-1">deepseek-r1:7b</p>
+          <p class="text-[0.78rem] font-mono text-outline">~4.7 GB · Strong reasoning</p>
+        </div>
+        <div class="bg-background p-5 border-t-2 border-[#8a2be2]">
+          <div class="flex justify-between items-start mb-3">
+            <span class="text-[0.6875rem] font-mono text-[#8a2be2] uppercase tracking-widest">⭐ Recommended</span>
+            <div class="w-1.5 h-1.5 bg-[#8a2be2]"></div>
+          </div>
+          <p class="font-mono text-white text-base font-bold mb-1">gemma3:4b</p>
+          <p class="text-[0.78rem] font-mono text-outline">~3.1 GB · Fast, Google</p>
+        </div>
+        <div class="bg-background p-5 border-t-2 border-[#8a2be2]">
+          <div class="flex justify-between items-start mb-3">
+            <span class="text-[0.6875rem] font-mono text-[#8a2be2] uppercase tracking-widest">⭐ Recommended</span>
+            <div class="w-1.5 h-1.5 bg-[#8a2be2]"></div>
+          </div>
+          <p class="font-mono text-white text-base font-bold mb-1">qwen2.5-coder:7b</p>
+          <p class="text-[0.78rem] font-mono text-outline">~4.4 GB · Code specialist</p>
+        </div>
+
+        <!-- standard -->
+        <div class="bg-surface-container-lowest p-5">
+          <p class="text-[0.6875rem] font-mono text-outline uppercase tracking-widest mb-3">Standard</p>
+          <p class="font-mono text-white text-base font-bold mb-1">llama3.1:8b</p>
+          <p class="text-[0.78rem] font-mono text-outline">~4.7 GB · General</p>
+        </div>
+        <div class="bg-surface-container-lowest p-5">
+          <p class="text-[0.6875rem] font-mono text-outline uppercase tracking-widest mb-3">Standard</p>
+          <p class="font-mono text-white text-base font-bold mb-1">mistral:7b</p>
+          <p class="text-[0.78rem] font-mono text-outline">~4.1 GB · General</p>
+        </div>
+        <div class="bg-surface-container-lowest p-5">
+          <p class="text-[0.6875rem] font-mono text-outline uppercase tracking-widest mb-3">Standard</p>
+          <p class="font-mono text-white text-base font-bold mb-1">phi3.5</p>
+          <p class="text-[0.78rem] font-mono text-outline">~2.2 GB · Tiny, fast</p>
+        </div>
+        <div class="bg-surface-container-lowest p-5">
+          <p class="text-[0.6875rem] font-mono text-outline uppercase tracking-widest mb-3">Standard</p>
+          <p class="font-mono text-white text-base font-bold mb-1">gemma3:12b</p>
+          <p class="text-[0.78rem] font-mono text-outline">~7.9 GB · Quality</p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════ COMMANDS ═══════════════════ -->
+  <section class="py-24 container mx-auto px-6">
+    <div class="mb-12 flex items-baseline gap-4">
+      <h2 class="text-3xl font-black font-headline tracking-tighter text-white uppercase">Model_Commands</h2>
+      <div class="h-px flex-1 bg-outline-variant"></div>
+      <span class="text-[0.6875rem] font-mono text-outline">CLI_REF: v1.0</span>
+    </div>
+    <p class="text-sm text-outline font-mono mb-8">Manage models without touching a config file.</p>
+
+    <div class="bg-surface-container-lowest border border-outline-variant p-6 font-mono text-[0.85rem] leading-loose max-w-2xl">
+      <p class="text-outline"># Browse and pull models</p>
+      <p><span class="text-primary">durar-ai</span> <span class="text-white">models popular</span></p>
+      <p><span class="text-primary">durar-ai</span> <span class="text-white">models pull</span> <span class="text-[#8a2be2]">llama3.2</span></p>
+      <p class="mt-4 text-outline"># Switch between providers</p>
+      <p><span class="text-primary">durar-ai</span> <span class="text-white">models use</span> <span class="text-[#8a2be2]">ollama</span></p>
+      <p><span class="text-primary">durar-ai</span> <span class="text-white">models use</span> <span class="text-[#8a2be2]">anthropic</span></p>
+      <p class="mt-4 text-outline"># Start the gateway</p>
+      <p><span class="text-primary">durar-ai</span> <span class="text-white">start</span></p>
+      <div class="mt-6 h-1 w-full bg-surface-container-highest">
+        <div class="h-full bg-[#8a2be2] w-2/3"></div>
+      </div>
+      <p class="text-[0.6875rem] text-outline mt-1">GATEWAY: INITIALIZING…</p>
+    </div>
+  </section>
+
+  <!-- ═══════════════════ CTA ═══════════════════ -->
+  <section class="py-24 container mx-auto px-6">
+    <div class="bg-surface-container-lowest border border-outline-variant relative p-10 md:p-20 overflow-hidden">
+      <!-- top glow bar -->
+      <div class="absolute top-0 left-0 w-full h-1 bg-[#8a2be2] glow-border"></div>
+
+      <div class="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-12">
+        <div class="max-w-xl">
+          <h2 class="text-4xl md:text-5xl font-black font-headline text-white mb-6 uppercase tracking-tight">Ready to Initialize?</h2>
+          <p class="text-base text-outline font-body leading-relaxed mb-8">
+            Download and run your own personal AI gateway in under a minute.
+            Enterprise support modules available for heavy-lift applications.
+          </p>
+          <div class="flex flex-wrap gap-4">
+            <button onclick="copyInstall()" class="bg-primary-container text-white px-8 py-3 font-mono font-black uppercase text-sm hover:brightness-110 transition-all border border-primary-container">
+              COPY_INSTALL_CMD
+            </button>
+            <a href="/version" class="bg-transparent border border-outline-variant text-white px-8 py-3 font-mono uppercase text-sm hover:bg-white/5 transition-all">
+              API_DOCUMENTATION
+            </a>
+          </div>
+        </div>
+
+        <div class="w-full md:w-auto shrink-0">
+          <div class="bg-surface-container border border-outline-variant p-5 font-mono text-[0.75rem] text-primary space-y-1 min-w-[300px]">
+            <p class="text-outline">$ curl -fsSL https://durar.ai/install.sh | bash</p>
+            <p>&gt; Verifying checksum…</p>
+            <p>&gt; Establishing secure channel…</p>
+            <p>&gt; [OK] System architecture identified.</p>
+            <p>&gt; [OK] Initializing local cluster…</p>
+            <div class="h-1 w-full bg-surface-container-highest mt-3">
+              <div class="h-full bg-[#8a2be2] w-2/3 transition-all"></div>
+            </div>
+            <p class="text-outline">INSTALLING: 68%</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- decorative watermark -->
+      <div class="absolute bottom-4 right-6 opacity-[0.06] select-none pointer-events-none">
+        <span class="text-9xl font-black font-headline text-white">V1</span>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- ═══════════════════ FOOTER ═══════════════════ -->
+<footer class="bg-[#0e0e0e] border-t border-[#4c4354] w-full flex flex-col md:flex-row justify-between items-center px-6 py-3 gap-3">
+  <div class="flex items-center gap-6">
+    <span class="text-[0.6875rem] font-mono text-gray-500">© 2025 DURAR_AI · MIT LICENSE</span>
+    <div class="hidden md:flex gap-4 items-center">
+      <a href="/releases/durar-ai-node-1.0.0.zip" class="text-[0.6875rem] font-mono text-gray-600 hover:text-[#8a2be2] transition-colors">DOWNLOAD</a>
+      <a href="/version" class="text-[0.6875rem] font-mono text-gray-600 hover:text-[#8a2be2] transition-colors">API_DOCS</a>
+      <a href="https://github.com/openclaw/openclaw" class="text-[0.6875rem] font-mono text-gray-600 hover:text-[#8a2be2] transition-colors">GITHUB</a>
+      <div class="flex items-center gap-1.5">
+        <div class="w-1.5 h-1.5 bg-[#8a2be2]"></div>
+        <span class="text-[0.6875rem] font-mono text-[#8a2be2]">SYS_STATUS_OK</span>
+      </div>
+    </div>
   </div>
-</section>
-
-<section class="section" id="models">
-  <h2 class="section-title">Recommended Ollama Models</h2>
-  <p class="section-sub">Pull any of these after install. Starred models are the best starting points.</p>
-  <div class="models-grid">
-    <div class="model-chip rec"><div class="name">llama3.2</div><div class="meta">⭐ ~2 GB · Fast, general</div></div>
-    <div class="model-chip rec"><div class="name">deepseek-r1:7b</div><div class="meta">⭐ ~4.7 GB · Reasoning</div></div>
-    <div class="model-chip rec"><div class="name">gemma3:4b</div><div class="meta">⭐ ~3.1 GB · Fast, Google</div></div>
-    <div class="model-chip rec"><div class="name">qwen2.5-coder:7b</div><div class="meta">⭐ ~4.4 GB · Coding</div></div>
-    <div class="model-chip"><div class="name">llama3.1:8b</div><div class="meta">~4.7 GB · General</div></div>
-    <div class="model-chip"><div class="name">mistral:7b</div><div class="meta">~4.1 GB · General</div></div>
-    <div class="model-chip"><div class="name">phi3.5</div><div class="meta">~2.2 GB · Tiny, fast</div></div>
-    <div class="model-chip"><div class="name">gemma3:12b</div><div class="meta">~7.9 GB · Quality</div></div>
+  <div class="flex items-center gap-3">
+    <span class="material-symbols-outlined text-gray-600 text-base hover:text-white cursor-pointer">share</span>
+    <span class="material-symbols-outlined text-gray-600 text-base hover:text-white cursor-pointer">help_outline</span>
   </div>
-</section>
-
-<section class="section">
-  <h2 class="section-title">Model commands</h2>
-  <p class="section-sub">Manage models without touching a config file.</p>
-  <div class="cmd-block">
-    <div><span class="comment"># Browse and pull models</span></div>
-    <div><span class="cmd">durar-ai models popular</span></div>
-    <div><span class="cmd">durar-ai models pull</span> <span class="arg">llama3.2</span></div>
-    <div>&nbsp;</div>
-    <div><span class="comment"># Switch between providers</span></div>
-    <div><span class="cmd">durar-ai models use</span> <span class="arg">ollama</span></div>
-    <div><span class="cmd">durar-ai models use</span> <span class="arg">anthropic</span></div>
-    <div>&nbsp;</div>
-    <div><span class="comment"># Start the gateway</span></div>
-    <div><span class="cmd">durar-ai start</span></div>
-  </div>
-</section>
-
-<footer>
-  <p>Durar AI is open source (MIT). Built on <a href="https://github.com/openclaw/openclaw">OpenClaw</a>.</p>
 </footer>
 
 <script>
 function copyInstall() {
-  const text = document.getElementById("install-cmd").textContent;
+  const text = document.getElementById("install-cmd").textContent.trim();
   navigator.clipboard.writeText(text).then(() => {
-    const btn = document.querySelector(".copy-btn");
-    btn.textContent = "Copied!";
-    setTimeout(() => btn.textContent = "Copy", 2000);
+    const btn = document.getElementById("copy-btn");
+    btn.textContent = "COPIED!";
+    setTimeout(() => btn.textContent = "COPY", 2000);
   });
 }
 
-// Auto-detect OS and show correct install command
 (function() {
-  const cmd = document.getElementById("install-cmd");
+  const cmd  = document.getElementById("install-cmd");
   const note = document.getElementById("install-note");
   const isWin = /Win/.test(navigator.platform) || /Windows/.test(navigator.userAgent);
-  const isMac = /Mac/.test(navigator.platform);
-
   if (isWin) {
-    cmd.textContent = "irm https://durar.ai/install.ps1 | iex";
-    note.innerHTML = "For Windows 10/11 (PowerShell). <a href=\"/releases/durar-ai-node-1.0.0.zip\">Direct download</a> also available.";
-  } else if (isMac) {
-    note.innerHTML = "Works on macOS &amp; Linux. <a href=\"/releases/durar-ai-node-1.0.0.zip\">Direct download</a> also available.";
+    cmd.textContent  = "irm https://durar.ai/install.ps1 | iex";
+    note.innerHTML   = 'For Windows 10/11 (PowerShell).';
   }
 })();
 </script>
