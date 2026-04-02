@@ -106,14 +106,36 @@ async function showPopularAndPull(cfg, baseUrl) {
 async function pullWithProgress(baseUrl, modelName) {
   console.log(`\n  Pulling ${modelName} ...`);
   let lastLine = "";
+  let lastEta = null;
+
+  const downloadPhases = ["pulling manifest", "downloading"];
+  const processingPhases = {
+    "verifying sha256 digest": "Verifying...",
+    "writing manifest": "Finalizing...",
+    "success": "Done",
+  };
+
   for await (const ev of pullModelStream(baseUrl, modelName)) {
+    const isDownloading = downloadPhases.some((p) => ev.status.includes(p));
     const etaStr = ev.eta ? ` · ${formatEta(ev.eta)} remaining` : "";
-    const line = ev.percent !== undefined ? `  ${ev.status} ${ev.percent}%${etaStr}` : `  ${ev.status}`;
-    if (line !== lastLine) {
-      process.stdout.write(`\r${line.padEnd(80)}`);
-      lastLine = line;
-      if (ev.done) { process.stdout.write("\n"); break; }
+
+    if (isDownloading && ev.percent !== undefined) {
+      lastEta = ev.eta;
+      const line = `  ${ev.status} ${ev.percent}%${etaStr}`;
+      if (line !== lastLine) {
+        process.stdout.write(`\r${line.padEnd(80)}`);
+        lastLine = line;
+      }
+    } else {
+      const label = processingPhases[ev.status] || ev.status;
+      const etaHint = lastEta ? ` (was ~${formatEta(lastEta)} remaining)` : "";
+      const line = `  ${label}${etaHint}`;
+      if (line !== lastLine) {
+        process.stdout.write(`\r${line.padEnd(80)}`);
+        lastLine = line;
+      }
     }
+    if (ev.done) { process.stdout.write("\n"); break; }
   }
   console.log(`  ✓ ${modelName} ready`);
 }

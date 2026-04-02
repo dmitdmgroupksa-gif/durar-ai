@@ -368,12 +368,34 @@ async function modelsPull(name) {
   }
   console.log(`\n  Pulling ${name} ...`);
   let last = "";
+  let lastEta = null;
+
+  const downloadPhases = ["pulling manifest", "downloading"];
+  const processingPhases = {
+    "verifying sha256 digest": "Verifying...",
+    "writing manifest": "Finalizing...",
+    "success": "Done",
+  };
+
   for await (const ev of pullModelStream(baseUrl, name)) {
+    const isDownloading = downloadPhases.some((p) => ev.status.includes(p));
     const etaStr = ev.eta ? ` · ${formatEta(ev.eta)} remaining` : "";
-    const line = ev.percent !== undefined ? `  ${ev.status} ${ev.percent}%${etaStr}` : `  ${ev.status}`;
-    if (line !== last) {
-      process.stdout.write(`\r${line.padEnd(80)}`);
-      last = line;
+
+    if (isDownloading && ev.percent !== undefined) {
+      lastEta = ev.eta;
+      const line = `  ${ev.status} ${ev.percent}%${etaStr}`;
+      if (line !== last) {
+        process.stdout.write(`\r${line.padEnd(80)}`);
+        last = line;
+      }
+    } else {
+      const label = processingPhases[ev.status] || ev.status;
+      const etaHint = lastEta ? ` (was ~${formatEta(lastEta)} remaining)` : "";
+      const line = `  ${label}${etaHint}`;
+      if (line !== last) {
+        process.stdout.write(`\r${line.padEnd(80)}`);
+        last = line;
+      }
     }
     if (ev.done) { process.stdout.write("\n"); break; }
   }
