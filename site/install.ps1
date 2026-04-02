@@ -25,12 +25,15 @@ $NODE_INSTALLER  = "node-v$NODE_VERSION-$NODE_ARCH.msi"
 $NODE_URL        = "https://nodejs.org/dist/v$NODE_VERSION/$NODE_INSTALLER"
 
 # ── Fetch version from server ─────────────────────────────────────────────────
+$FALLBACK_VERSION = "1.0.0"
 try {
     [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
     $versionJson = (Invoke-WebRequest -Uri "$DOWNLOAD_BASE/version" -UseBasicParsing -TimeoutSec 5).Content
     $DURAR_VERSION = ($versionJson | ConvertFrom-Json).version
+    if (-not $DURAR_VERSION) { $DURAR_VERSION = $FALLBACK_VERSION }
 } catch {
-    $DURAR_VERSION = "latest"
+    Write-Warn "Could not reach version server — using v$FALLBACK_VERSION"
+    $DURAR_VERSION = $FALLBACK_VERSION
 }
 
 # ── Colours ───────────────────────────────────────────────────────────────────
@@ -243,8 +246,12 @@ function Main {
     Push-Location $APP_DIR
     try {
         & node "src\setup.js"
+        if ($LASTEXITCODE -ne 0) {
+            Write-Warn "Setup wizard exited with code $LASTEXITCODE"
+        }
     } catch {
-        Write-Warn "Setup wizard failed — run 'durar-ai setup' manually later"
+        Write-Warn "Setup wizard failed: $_"
+        Write-Warn "You can run it manually later with: durar-ai setup"
     }
     Pop-Location
 

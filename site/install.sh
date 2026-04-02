@@ -12,7 +12,7 @@ fetch_version() {
   local version
   version=$(curl -fsSL --max-time 5 "${DOWNLOAD_BASE}/version" 2>/dev/null | grep -o '"version"[[:space:]]*:[[:space:]]*"[^"]*"' | sed 's/.*"version"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/' 2>/dev/null || echo "")
   if [ -z "$version" ]; then
-    version="latest"
+    version="1.0.0"
   fi
   echo "$version"
 }
