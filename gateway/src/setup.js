@@ -59,8 +59,12 @@ async function setupOllama(cfg) {
       console.log(`  ${String(i + 1).padStart(2)}) ${m.name.padEnd(30)} ${m.sizeHuman}${running}`);
     });
     console.log(`   P) Browse popular models to pull`);
-    const sel = await ask(`\n  Select model number or P to browse popular [1]: `);
-    if (sel.trim().toLowerCase() === "p") {
+    console.log(`   S) Skip — choose a model later`);
+    const sel = await ask(`\n  Select model number, P, or S to skip [1]: `);
+    if (sel.trim().toLowerCase() === "s") {
+      cfg.model.name = "llama3.2";
+      console.log(`  ✓ Skipping model download — set one later with: durar-ai models pull <name>`);
+    } else if (sel.trim().toLowerCase() === "p") {
       await showPopularAndPull(cfg, baseUrl);
     } else {
       const idx = parseInt(sel.trim() || "1") - 1;
@@ -80,27 +84,57 @@ async function showPopularAndPull(cfg, baseUrl) {
     console.log(`  ${String(i + 1).padStart(2)}) ${m.name.padEnd(26)} ${m.label.padEnd(24)} ${m.size.padEnd(10)} [${m.tags.join(", ")}]`);
   });
   console.log(`   A) Show all models`);
+  console.log(`   S) Skip — install a model later`);
 
-  const choice = await ask(`\n  Select to pull [1]: `);
+  const choice = await ask(`\n  Select to pull [1], or S to skip: `);
+
+  if (choice.trim().toLowerCase() === "s") {
+    cfg.model.name = "llama3.2";
+    console.log(`  ✓ Skipping model download — set one later with: durar-ai models pull <name>`);
+    return;
+  }
+
   let list = recs;
 
   if (choice.trim().toLowerCase() === "a") {
     console.log();
     POPULAR_MODELS.forEach((m, i) => {
-      console.log(`  ${String(i + 1).padStart(2)}) ${m.name.padEnd(26)} ${m.label.padEnd(24)} ${m.size}`);
+      const warn = m.size.includes("40") || m.size.includes("70") ? " ⚠ LARGE" : "";
+      console.log(`  ${String(i + 1).padStart(2)}) ${m.name.padEnd(26)} ${m.label.padEnd(24)} ${m.size.padEnd(10)}${warn}`);
     });
-    const c2 = await ask(`\n  Select to pull [1]: `);
+    const c2 = await ask(`\n  Select to pull [1], or S to skip: `);
+    if (c2.trim().toLowerCase() === "s") {
+      cfg.model.name = "llama3.2";
+      console.log(`  ✓ Skipping model download — set one later with: durar-ai models pull <name>`);
+      return;
+    }
     list = POPULAR_MODELS;
     const idx = parseInt(c2.trim() || "1") - 1;
     const model = list[Math.max(0, Math.min(idx, list.length - 1))];
-    await pullWithProgress(baseUrl, model.name);
-    cfg.model.name = model.name;
+    await confirmAndPull(cfg, baseUrl, model);
   } else {
     const idx = parseInt(choice.trim() || "1") - 1;
     const model = list[Math.max(0, Math.min(idx, list.length - 1))];
-    await pullWithProgress(baseUrl, model.name);
-    cfg.model.name = model.name;
+    await confirmAndPull(cfg, baseUrl, model);
   }
+}
+
+async function confirmAndPull(cfg, baseUrl, model) {
+  const isLarge = model.size.includes("40") || model.size.includes("70") || model.size.includes("14b") || model.size.includes("12b");
+
+  if (isLarge) {
+    console.log(`\n  ⚠  WARNING: ${model.name} is ${model.size}. This will take a while.`);
+    console.log(`     For most users, llama3.2 (~2 GB) is recommended.`);
+    const confirm = await ask(`  Download ${model.name} anyway? [y/N]: `);
+    if (confirm.trim().toLowerCase() !== "y") {
+      console.log(`  ✓ Skipped. Run "durar-ai models pull llama3.2" for a smaller model.`);
+      cfg.model.name = "llama3.2";
+      return;
+    }
+  }
+
+  await pullWithProgress(baseUrl, model.name);
+  cfg.model.name = model.name;
 }
 
 async function pullWithProgress(baseUrl, modelName) {
