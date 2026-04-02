@@ -1,0 +1,29 @@
+{
+  "name": "durar-ai-node",
+  "version": "1.0.0",
+  "description": "Durar AI — Standalone Node.js Gateway with Ollama local model support",
+  "type": "module",
+  "main": "src/gateway.js",
+  "bin": {
+    "durar-ai": "src/cli.js"
+  },
+  "scripts": {
+    "start": "node src/gateway.js",
+    "dev": "node --watch src/gateway.js",
+    "setup": "node src/setup.js"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "ws": "^8.17.1",
+    "dotenv": "^16.4.5",
+    "chalk": "^5.3.0",
+    "commander": "^12.1.0",
+    "inquirer": "^9.3.7",
+    "node-fetch": "^3.3.2",
+    "uuid": "^10.0.0"
+  },
+  "license": "MIT"
+}

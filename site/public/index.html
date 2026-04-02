@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Durar AI — Your Personal AI Assistant</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #0a0a0f;
+    --surface: #12121a;
+    --border: #1e1e2e;
+    --accent: #7c6af7;
+    --accent2: #5eead4;
+    --text: #e2e2f0;
+    --muted: #888899;
+    --code-bg: #0d0d17;
+  }
+  body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; line-height: 1.6; }
+
+  /* NAV */
+  nav { display: flex; align-items: center; justify-content: space-between; padding: 1.2rem 2rem; border-bottom: 1px solid var(--border); position: sticky; top: 0; background: rgba(10,10,15,0.92); backdrop-filter: blur(12px); z-index: 10; }
+  .logo { font-size: 1.25rem; font-weight: 700; color: var(--text); text-decoration: none; display: flex; align-items: center; gap: .5rem; }
+  .logo span { color: var(--accent); }
+  nav a { color: var(--muted); text-decoration: none; font-size: .9rem; }
+  nav a:hover { color: var(--text); }
+  nav .nav-links { display: flex; gap: 2rem; align-items: center; }
+
+  /* HERO */
+  .hero { text-align: center; padding: 5rem 2rem 4rem; max-width: 780px; margin: 0 auto; }
+  .badge { display: inline-block; background: rgba(124,106,247,.15); color: var(--accent); border: 1px solid rgba(124,106,247,.3); border-radius: 20px; padding: .3rem 1rem; font-size: .8rem; margin-bottom: 1.5rem; letter-spacing: .05em; text-transform: uppercase; }
+  h1 { font-size: clamp(2.2rem, 5vw, 3.5rem); font-weight: 800; line-height: 1.15; margin-bottom: 1.2rem; }
+  h1 em { font-style: normal; background: linear-gradient(135deg, var(--accent), var(--accent2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+  .hero p { font-size: 1.15rem; color: var(--muted); max-width: 580px; margin: 0 auto 2.5rem; }
+
+  /* ONE-LINER */
+  .install-box { background: var(--code-bg); border: 1px solid var(--border); border-radius: 12px; padding: 1.2rem 1.6rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem; max-width: 640px; margin: 0 auto 1rem; font-family: 'SF Mono', 'Fira Code', monospace; }
+  .install-box code { color: var(--accent2); font-size: .9rem; word-break: break-all; }
+  .copy-btn { background: var(--accent); color: #fff; border: none; border-radius: 7px; padding: .45rem .9rem; cursor: pointer; font-size: .8rem; font-weight: 600; white-space: nowrap; transition: opacity .2s; }
+  .copy-btn:hover { opacity: .85; }
+  .install-note { color: var(--muted); font-size: .82rem; }
+  .install-note a { color: var(--accent); }
+
+  /* FEATURES */
+  .section { padding: 4rem 2rem; max-width: 1000px; margin: 0 auto; }
+  .section-title { font-size: 1.7rem; font-weight: 700; margin-bottom: .6rem; }
+  .section-sub { color: var(--muted); margin-bottom: 2.5rem; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.2rem; }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.4rem; transition: border-color .2s; }
+  .card:hover { border-color: var(--accent); }
+  .card-icon { font-size: 1.6rem; margin-bottom: .8rem; }
+  .card h3 { font-size: 1rem; font-weight: 600; margin-bottom: .4rem; }
+  .card p { color: var(--muted); font-size: .88rem; }
+
+  /* MODELS */
+  .models-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: .8rem; }
+  .model-chip { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: .8rem 1rem; }
+  .model-chip .name { font-family: monospace; font-size: .85rem; color: var(--accent2); margin-bottom: .25rem; }
+  .model-chip .meta { font-size: .78rem; color: var(--muted); }
+  .model-chip.rec { border-color: rgba(124,106,247,.4); }
+
+  /* COMMANDS */
+  .cmd-block { background: var(--code-bg); border: 1px solid var(--border); border-radius: 10px; padding: 1.4rem 1.8rem; font-family: monospace; font-size: .88rem; line-height: 2; }
+  .cmd-block .comment { color: #4a4a6a; }
+  .cmd-block .cmd { color: var(--accent2); }
+  .cmd-block .arg { color: var(--accent); }
+
+  /* FOOTER */
+  footer { border-top: 1px solid var(--border); padding: 2rem; text-align: center; color: var(--muted); font-size: .85rem; }
+  footer a { color: var(--accent); text-decoration: none; }
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="logo" href="/"><span>✨</span> Durar AI</a>
+  <div class="nav-links">
+    <a href="#models">Models</a>
+    <a href="#install">Install</a>
+    <a href="/version">API</a>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="badge">Open Source · Free · Self-Hosted</div>
+  <h1>Your personal<br><em>AI assistant</em></h1>
+  <p>Run powerful AI models locally with Ollama — or connect to Claude, GPT, and more. One command to install.</p>
+
+  <div class="install-box" id="install">
+    <code id="install-cmd">curl -fsSL https://yourdomain.com/install.sh | bash</code>
+    <button class="copy-btn" onclick="copyInstall()">Copy</button>
+  </div>
+  <p class="install-note" id="install-note">Works on macOS &amp; Linux. <a href="/releases/durar-ai-node-1.0.0.zip">Direct download</a> also available.</p>
+</section>
+
+<section class="section">
+  <h2 class="section-title">Everything you need</h2>
+  <p class="section-sub">Install once, run anywhere.</p>
+  <div class="grid">
+    <div class="card"><div class="card-icon">🖥️</div><h3>Local Models via Ollama</h3><p>Run Llama, Mistral, Gemma, DeepSeek and more entirely on your own machine. Free, private, no API key.</p></div>
+    <div class="card"><div class="card-icon">⚡</div><h3>Streaming Responses</h3><p>Real-time token streaming over HTTP (SSE) and WebSocket. Feels instant.</p></div>
+    <div class="card"><div class="card-icon">🧠</div><h3>Persistent Sessions</h3><p>Memory across conversations. Durar remembers context so you don't repeat yourself.</p></div>
+    <div class="card"><div class="card-icon">🔌</div><h3>OpenAI-Compatible API</h3><p>Drop-in replacement for any OpenAI client. Point your tools at your own gateway.</p></div>
+    <div class="card"><div class="card-icon">☁️</div><h3>Cloud Providers Too</h3><p>Switch between Ollama, Claude (Anthropic), GPT (OpenAI), or OpenRouter with one command.</p></div>
+    <div class="card"><div class="card-icon">🛠️</div><h3>Simple CLI</h3><p>Pull models, switch providers, check health — all from the terminal.</p></div>
+  </div>
+</section>
+
+<section class="section" id="models">
+  <h2 class="section-title">Recommended Ollama Models</h2>
+  <p class="section-sub">Pull any of these after install. Starred models are the best starting points.</p>
+  <div class="models-grid">
+    <div class="model-chip rec"><div class="name">llama3.2</div><div class="meta">⭐ ~2 GB · Fast, general</div></div>
+    <div class="model-chip rec"><div class="name">deepseek-r1:7b</div><div class="meta">⭐ ~4.7 GB · Reasoning</div></div>
+    <div class="model-chip rec"><div class="name">gemma3:4b</div><div class="meta">⭐ ~3.1 GB · Fast, Google</div></div>
+    <div class="model-chip rec"><div class="name">qwen2.5-coder:7b</div><div class="meta">⭐ ~4.4 GB · Coding</div></div>
+    <div class="model-chip"><div class="name">llama3.1:8b</div><div class="meta">~4.7 GB · General</div></div>
+    <div class="model-chip"><div class="name">mistral:7b</div><div class="meta">~4.1 GB · General</div></div>
+    <div class="model-chip"><div class="name">phi3.5</div><div class="meta">~2.2 GB · Tiny, fast</div></div>
+    <div class="model-chip"><div class="name">gemma3:12b</div><div class="meta">~7.9 GB · Quality</div></div>
+  </div>
+</section>
+
+<section class="section">
+  <h2 class="section-title">Model commands</h2>
+  <p class="section-sub">Manage models without touching a config file.</p>
+  <div class="cmd-block">
+    <div><span class="comment"># Browse and pull models</span></div>
+    <div><span class="cmd">durar-ai models popular</span></div>
+    <div><span class="cmd">durar-ai models pull</span> <span class="arg">llama3.2</span></div>
+    <div>&nbsp;</div>
+    <div><span class="comment"># Switch between providers</span></div>
+    <div><span class="cmd">durar-ai models use</span> <span class="arg">ollama</span></div>
+    <div><span class="cmd">durar-ai models use</span> <span class="arg">anthropic</span></div>
+    <div>&nbsp;</div>
+    <div><span class="comment"># Start the gateway</span></div>
+    <div><span class="cmd">durar-ai start</span></div>
+  </div>
+</section>
+
+<footer>
+  <p>Durar AI is open source (MIT). Built on <a href="https://github.com/openclaw/openclaw">OpenClaw</a>.</p>
+</footer>
+
+<script>
+function copyInstall() {
+  const text = document.getElementById("install-cmd").textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.querySelector(".copy-btn");
+    btn.textContent = "Copied!";
+    setTimeout(() => btn.textContent = "Copy", 2000);
+  });
+}
+
+// Auto-detect OS and show correct install command
+(function() {
+  const cmd = document.getElementById("install-cmd");
+  const note = document.getElementById("install-note");
+  const isWin = /Win/.test(navigator.platform) || /Windows/.test(navigator.userAgent);
+  const isMac = /Mac/.test(navigator.platform);
+
+  if (isWin) {
+    cmd.textContent = "irm https://yourdomain.com/install.ps1 | iex";
+    note.innerHTML = "For Windows 10/11 (PowerShell). <a href=\"/releases/durar-ai-node-1.0.0.zip\">Direct download</a> also available.";
+  } else if (isMac) {
+    note.innerHTML = "Works on macOS &amp; Linux. <a href=\"/releases/durar-ai-node-1.0.0.zip\">Direct download</a> also available.";
+  }
+})();
+</script>
+</body>
+</html>
