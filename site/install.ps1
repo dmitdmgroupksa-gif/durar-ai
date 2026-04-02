@@ -14,7 +14,6 @@ Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
 
 # ── Configuration ─────────────────────────────────────────────────────────────
-$DURAR_VERSION   = "1.0.0"
 $INSTALL_DIR     = Join-Path $env:USERPROFILE ".durar-ai"
 $APP_DIR         = Join-Path $INSTALL_DIR "app"
 $BIN_DIR         = Join-Path $INSTALL_DIR "bin"
@@ -25,6 +24,15 @@ $NODE_ARCH       = if ([Environment]::Is64BitOperatingSystem) { "x64" } else { "
 $NODE_INSTALLER  = "node-v$NODE_VERSION-$NODE_ARCH.msi"
 $NODE_URL        = "https://nodejs.org/dist/v$NODE_VERSION/$NODE_INSTALLER"
 
+# ── Fetch version from server ─────────────────────────────────────────────────
+try {
+    [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+    $versionJson = (Invoke-WebRequest -Uri "$DOWNLOAD_BASE/version" -UseBasicParsing -TimeoutSec 5).Content
+    $DURAR_VERSION = ($versionJson | ConvertFrom-Json).version
+} catch {
+    $DURAR_VERSION = "latest"
+}
+
 # ── Colours ───────────────────────────────────────────────────────────────────
 function Write-Info    { param($m) Write-Host "  → " -NoNewline -ForegroundColor Cyan;    Write-Host $m }
 function Write-Ok      { param($m) Write-Host "  ✓ " -NoNewline -ForegroundColor Green;   Write-Host $m }
@@ -32,7 +40,7 @@ function Write-Warn    { param($m) Write-Host "  ⚠ " -NoNewline -ForegroundCol
 function Write-Err     { param($m) Write-Host "  ✗ " -NoNewline -ForegroundColor Red;     Write-Host $m }
 function Write-Banner  {
     Write-Host ""
-    Write-Host "  ✨  Durar AI Installer  v$DURAR_VERSION" -ForegroundColor White -Bold
+    Write-Host "  Durar AI Installer  v$DURAR_VERSION" -ForegroundColor White -Bold
     Write-Host "  ─────────────────────────────────────"
     Write-Host ""
 }

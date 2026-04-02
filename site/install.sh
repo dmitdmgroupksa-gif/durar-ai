@@ -1,12 +1,23 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-DURAR_VERSION="1.0.0"
+DOWNLOAD_BASE="https://durar.ai"
 DURAR_DIR="$HOME/.durar-ai"
 INSTALL_DIR="$HOME/.durar-ai/app"
-DOWNLOAD_BASE="https://durar.ai"
 BIN_LINK="/usr/local/bin/durar-ai"
 MIN_NODE_MAJOR=20
+
+# ── Fetch version from server ─────────────────────────────────────────────────
+fetch_version() {
+  local version
+  version=$(curl -fsSL --max-time 5 "${DOWNLOAD_BASE}/version" 2>/dev/null | grep -o '"version"[[:space:]]*:[[:space:]]*"[^"]*"' | sed 's/.*"version"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/' 2>/dev/null || echo "")
+  if [ -z "$version" ]; then
+    version="latest"
+  fi
+  echo "$version"
+}
+
+DURAR_VERSION=$(fetch_version)
 
 # ── Colours ───────────────────────────────────────────────────────────────────
 RED='\033[0;31m'; GREEN='\033[0;32m'; YELLOW='\033[1;33m'
@@ -21,7 +32,7 @@ trap 'error "Installation failed. See error above."' ERR
 
 banner() {
   echo ""
-  echo -e "${BOLD}  ✨  Durar AI Installer  v${DURAR_VERSION}${RESET}"
+  echo -e "${BOLD}  Durar AI Installer  v${DURAR_VERSION}${RESET}"
   echo -e "  ─────────────────────────────────────"
   echo ""
 }
