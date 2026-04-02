@@ -448,6 +448,101 @@ function showConfig() {
   console.log();
 }
 
+// ─── Ollama Management ────────────────────────────────────────────────────────
+async function ollamaInstall() {
+  info("Installing Ollama...");
+  if (IS_WIN) {
+    const installer = join(HOME, "OllamaSetup.exe");
+    try {
+      info("Downloading Ollama...");
+      const res = await fetch("https://ollama.com/download/OllamaSetup.exe");
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      writeFileSync(installer, Buffer.from(await res.arrayBuffer()));
+    } catch {
+      err("Download failed. Install manually from https://ollama.com");
+      process.exit(1);
+    }
+    info("Launching Ollama installer...");
+    try {
+      execSync(`"${installer}"`, { stdio: "inherit" });
+    } catch {
+      err("Installation failed.");
+      process.exit(1);
+    }
+    rmSync(installer, { force: true });
+    ok("Ollama installed");
+  } else {
+    try {
+      execSync("curl -fsSL https://ollama.com/install.sh | sh", { stdio: "inherit" });
+      ok("Ollama installed");
+    } catch {
+      err("Installation failed. Run: curl -fsSL https://ollama.com/install.sh | sh");
+      process.exit(1);
+    }
+  }
+
+  info("Starting Ollama service...");
+  try {
+    if (IS_WIN) {
+      spawn("ollama", ["serve"], { detached: true, stdio: "ignore" }).unref();
+    } else {
+      execSync("ollama serve &");
+    }
+    ok("Ollama started");
+  } catch {
+    warn("Could not auto-start Ollama. Run: ollama serve");
+  }
+}
+
+async function ollamaStatus() {
+  const cfg = loadConfig();
+  const baseUrl = cfg.model?.baseUrl ?? "http://127.0.0.1:11434";
+  const running = await isOllamaRunning(baseUrl);
+
+  console.log(`\n  Ollama Status`);
+  console.log(`  URL     : ${baseUrl}`);
+  console.log(`  Status  : ${running ? "🟢 running" : "🔴 not running"}`);
+
+  if (running) {
+    const models = await listInstalledModels(baseUrl);
+    const runningModels = await listRunningModels(baseUrl);
+    console.log(`  Models  : ${models.length} installed`);
+    if (models.length > 0) {
+      models.forEach((m) => {
+        const r = runningModels.includes(m.name) ? " 🟢" : "";
+        console.log(`            ${m.name.padEnd(30)} ${m.sizeHuman}${r}`);
+      });
+    }
+  } else {
+    console.log(`  Start   : ollama serve`);
+  }
+  console.log();
+}
+
+async function ollamaStart() {
+  const cfg = loadConfig();
+  const baseUrl = cfg.model?.baseUrl ?? "http://127.0.0.1:11434";
+
+  if (await isOllamaRunning(baseUrl)) {
+    ok("Ollama is already running");
+    return;
+  }
+
+  info("Starting Ollama...");
+  try {
+    if (IS_WIN) {
+      spawn("ollama", ["serve"], { detached: true, stdio: "ignore" }).unref();
+    } else {
+      execSync("ollama serve &");
+    }
+    ok("Ollama started");
+  } catch {
+    err("Failed to start Ollama. Is it installed?");
+    info("Install: durar-ai ollama install");
+    process.exit(1);
+  }
+}
+
 function help() {
   console.log(`
   ✨ Durar AI CLI
@@ -458,6 +553,9 @@ function help() {
     status                    Check if the gateway is running
     setup                     Run interactive setup wizard
     update                    Check and install updates
+    ollama install            Download and install Ollama
+    ollama start              Start the Ollama service
+    ollama status             Check Ollama status and models
     models list               List installed Ollama models
     models popular            Browse popular models
     models pull <name>        Pull an Ollama model
@@ -477,6 +575,8 @@ function help() {
     durar-ai models popular
     durar-ai health
     durar-ai update
+    durar-ai ollama install
+    durar-ai ollama status
 `);
 }
 
@@ -506,6 +606,14 @@ switch (cmd) {
       case "set":     await modelsSet(args[1]); break;
       case "use":     modelsUse(args[1]); break;
       default:        console.log('  Usage: durar-ai models [list|popular|pull|set|use]');
+    }
+    break;
+  case "ollama":
+    switch (args[0]) {
+      case "install": await ollamaInstall(); break;
+      case "start":   await ollamaStart(); break;
+      case "status":  await ollamaStatus(); break;
+      default:        await ollamaStatus();
     }
     break;
   case "health":  await health(); break;
