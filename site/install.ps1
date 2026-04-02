@@ -229,12 +229,32 @@ function Main {
     Setup-Cli
 
     Write-Host ""
-    Write-Host "  ✨ Installed successfully!" -ForegroundColor Green -Bold
+    Write-Host "  Installed successfully!" -ForegroundColor Green -Bold
     Write-Host ""
-    Write-Host "  Open a NEW PowerShell or Command Prompt and run:" -ForegroundColor White
+
+    # Refresh PATH in current session
+    $env:Path = [System.Environment]::GetEnvironmentVariable("Path", "Machine") + ";" +
+                [System.Environment]::GetEnvironmentVariable("Path", "User")
+
+    Write-Host "  Launching setup wizard..." -ForegroundColor White
+    Write-Host ""
+
+    # Run setup wizard
+    Push-Location $APP_DIR
+    try {
+        & node "src\setup.js"
+    } catch {
+        Write-Warn "Setup wizard failed — run 'durar-ai setup' manually later"
+    }
+    Pop-Location
+
+    Write-Host ""
+    Write-Host "  Done! To start the gateway:" -ForegroundColor Green -Bold
     Write-Host ""
     Write-Host "    durar-ai start" -ForegroundColor Cyan
     Write-Host ""
+    Write-Host "  Press Enter to close this window..." -ForegroundColor Gray
+    Read-Host
 }
 
 Main

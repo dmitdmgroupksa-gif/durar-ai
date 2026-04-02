@@ -179,9 +179,16 @@ setup_path() {
 # ── Final ─────────────────────────────────────────────────────────────────────
 done_msg() {
   echo ""
-  echo -e "${GREEN}${BOLD}  ✨ Installed successfully!${RESET}"
+  echo -e "${GREEN}${BOLD}  Installed successfully!${RESET}"
   echo ""
-  echo "  Run: durar-ai start"
+  echo "  Launching setup wizard..."
+  echo ""
+  cd "$INSTALL_DIR"
+  node "src/setup.js" || warn "Setup wizard failed — run 'durar-ai setup' manually"
+  echo ""
+  echo -e "${GREEN}${BOLD}  Done! To start the gateway:${RESET}"
+  echo ""
+  echo "  durar-ai start"
   echo ""
 }
 
