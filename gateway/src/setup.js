@@ -107,14 +107,22 @@ async function pullWithProgress(baseUrl, modelName) {
   console.log(`\n  Pulling ${modelName} ...`);
   let lastLine = "";
   for await (const ev of pullModelStream(baseUrl, modelName)) {
-    const line = ev.percent !== undefined ? `  ${ev.status} ${ev.percent}%` : `  ${ev.status}`;
+    const etaStr = ev.eta ? ` · ${formatEta(ev.eta)} remaining` : "";
+    const line = ev.percent !== undefined ? `  ${ev.status} ${ev.percent}%${etaStr}` : `  ${ev.status}`;
     if (line !== lastLine) {
-      process.stdout.write(`\r${line.padEnd(60)}`);
+      process.stdout.write(`\r${line.padEnd(80)}`);
       lastLine = line;
       if (ev.done) { process.stdout.write("\n"); break; }
     }
   }
   console.log(`  ✓ ${modelName} ready`);
+}
+
+function formatEta(seconds) {
+  if (!seconds || seconds < 0) return "";
+  const m = Math.floor(seconds / 60);
+  const s = seconds % 60;
+  return m > 0 ? `${m}m ${s}s` : `${s}s`;
 }
 
 async function setupApiProvider(cfg, provider) {

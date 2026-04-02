@@ -79,6 +79,7 @@ export async function* pullModelStream(baseUrl, modelName) {
   const reader = res.body.getReader();
   const decoder = new TextDecoder();
   let buf = "";
+  const startTime = Date.now();
 
   while (true) {
     const { done, value } = await reader.read();
@@ -93,7 +94,11 @@ export async function* pullModelStream(baseUrl, modelName) {
         const percent = ev.total && ev.completed
           ? Math.round((ev.completed / ev.total) * 100)
           : undefined;
-        yield { status: ev.status ?? "", percent, done: ev.status === "success" };
+        const elapsed = (Date.now() - startTime) / 1000;
+        const speed = elapsed > 0 ? ev.completed / elapsed : 0;
+        const remaining = ev.total - ev.completed;
+        const eta = speed > 0 && ev.total ? Math.round(remaining / speed) : null;
+        yield { status: ev.status ?? "", percent, done: ev.status === "success", eta };
       } catch { /* skip */ }
     }
   }
